@@ -4,7 +4,11 @@ use std::{
 };
 
 use axum::{
-    extract::{Path, State}, http::StatusCode, response::IntoResponse, routing::{get, post}, Json, Router
+    extract::{Path, State},
+    http::StatusCode,
+    response::IntoResponse,
+    routing::{get, post},
+    Json, Router,
 };
 
 use serde::{Deserialize, Serialize};
@@ -42,17 +46,19 @@ struct Movie {
 }
 
 /// Find a movie by its id, if it exists.
-async fn movie_by_id(State(state): State<AppState>, Path(movie_id): Path<String>) -> axum::response::Response {
+async fn movie_by_id(
+    State(state): State<AppState>,
+    Path(movie_id): Path<String>,
+) -> axum::response::Response {
     let db = state.db.lock().unwrap();
     eprintln!("looking up id: {movie_id}");
     if let Some(movie) = db.get(&movie_id) {
-
         return (StatusCode::OK, Json(movie)).into_response();
     }
     (StatusCode::NOT_FOUND, ()).into_response()
 }
 
-/// Gets a movie and inserts in into the db
+/// Inserts a movie in into the db
 async fn add_movie(State(state): State<AppState>, Json(movie): Json<Movie>) -> StatusCode {
     let deserialized_movie = Movie {
         id: movie.id.clone(),
